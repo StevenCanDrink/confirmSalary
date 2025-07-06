@@ -1,0 +1,16 @@
+@keyframes light-sweep {
+  from {
+    left: -40%;
+  }
+  to {
+    left: 100%;
+  }
+}
+@keyframes borderMove {
+  0% {
+    border-image-source: linear-gradient(270deg, #d32f2f, #f57c00, #fbc02d, #d32f2f);
+  }
+  100% {
+    border-image-source: linear-gradient(630deg, #d32f2f, #f57c00, #fbc02d, #d32f2f);
+  }
+}
