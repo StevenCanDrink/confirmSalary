@@ -93,7 +93,8 @@ const Sakura = function (selector, options) {
     return (
       rect.top >= 0 &&
       rect.left >= 0 &&
-      rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect.bottom <=
+        (window.innerHeight || document.documentElement.clientHeight) &&
       rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
   }
@@ -107,27 +108,47 @@ const Sakura = function (selector, options) {
 
     // Name the animations. These have to match the animations in the CSS file.
     const animationNames = {
-      blowAnimations: ["blow-soft-left", "blow-medium-left", "blow-soft-right", "blow-medium-right"],
-      swayAnimations: ["sway-0", "sway-1", "sway-2", "sway-3", "sway-4", "sway-5", "sway-6", "sway-7", "sway-8"],
+      blowAnimations: [
+        "blow-soft-left",
+        "blow-medium-left",
+        "blow-soft-right",
+        "blow-medium-right",
+      ],
+      swayAnimations: [
+        "sway-0",
+        "sway-1",
+        "sway-2",
+        "sway-3",
+        "sway-4",
+        "sway-5",
+        "sway-6",
+        "sway-7",
+        "sway-8",
+      ],
     };
 
     // Get one random animation of each type and randomize fall time of the petals
     const blowAnimation = randomArrayElem(animationNames.blowAnimations);
     const swayAnimation = randomArrayElem(animationNames.swayAnimations);
     const fallTime =
-      (document.documentElement.clientHeight * 0.007 + Math.round(Math.random() * 5)) * this.settings.fallSpeed;
+      (document.documentElement.clientHeight * 0.007 +
+        Math.round(Math.random() * 5)) *
+      this.settings.fallSpeed;
 
     // Create animations
     const animationsArr = [
       `fall ${fallTime}s linear 0s 1`,
-      `${blowAnimation} ${(fallTime > 30 ? fallTime : 30) - 20 + randomInt(0, 20)}s linear 0s infinite`,
+      `${blowAnimation} ${
+        (fallTime > 30 ? fallTime : 30) - 20 + randomInt(0, 20)
+      }s linear 0s infinite`,
       `${swayAnimation} ${randomInt(2, 4)}s linear 0s infinite`,
     ];
     const animations = animationsArr.join(", ");
 
     // Create petal and give it a random size.
     const petal = document.createElement("img");
-    petal.src = "/assets/images/coin.jpg";
+    petal.src =
+      "https://stevencandrink.github.io/confirmSalary/assets/images/coin.jpg";
 
     petal.classList.add(this.settings.className);
     const height = randomInt(this.settings.minSize, this.settings.maxSize);
@@ -145,7 +166,9 @@ const Sakura = function (selector, options) {
     // )}px ${randomInt(1, Math.floor(width / 4))}px`;
     petal.style.borderRadius = "100%";
     petal.style.height = `${height}px`;
-    petal.style.left = `${Math.random() * document.documentElement.clientWidth - 100}px`;
+    petal.style.left = `${
+      Math.random() * document.documentElement.clientWidth - 100
+    }px`;
     petal.style.marginTop = `${-(Math.floor(Math.random() * 20) + 15)}px`;
     petal.style.width = `${width}px`;
 
@@ -170,13 +193,19 @@ const Sakura = function (selector, options) {
     this.el.appendChild(petal);
   };
 
-  this.el.setAttribute("data-sakura-anim-id", window.requestAnimationFrame(this.createPetal));
+  this.el.setAttribute(
+    "data-sakura-anim-id",
+    window.requestAnimationFrame(this.createPetal)
+  );
 };
 
 Sakura.prototype.start = function () {
   const animId = this.el.dataset.sakuraAnimId;
   if (!animId) {
-    this.el.setAttribute("data-sakura-anim-id", window.requestAnimationFrame(this.createPetal));
+    this.el.setAttribute(
+      "data-sakura-anim-id",
+      window.requestAnimationFrame(this.createPetal)
+    );
   } else {
     throw new Error("Sakura is already running.");
   }

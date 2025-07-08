@@ -77,10 +77,22 @@ table {
 }
 @keyframes borderMove {
   0% {
-    border-image-source: linear-gradient(270deg, #d32f2f, #f57c00, #fbc02d, #d32f2f);
+    border-image-source: linear-gradient(
+      270deg,
+      #d32f2f,
+      #f57c00,
+      #fbc02d,
+      #d32f2f
+    );
   }
   100% {
-    border-image-source: linear-gradient(630deg, #d32f2f, #f57c00, #fbc02d, #d32f2f);
+    border-image-source: linear-gradient(
+      630deg,
+      #d32f2f,
+      #f57c00,
+      #fbc02d,
+      #d32f2f
+    );
   }
 }
 .form-container {
@@ -108,14 +120,16 @@ table {
   border-radius: 16px;
   width: 80%;
   min-width: auto;
-  box-shadow: 0 4px 6px rgba(184, 134, 11, 0.3), 0 8px 15px rgba(139, 94, 0, 0.2);
+  box-shadow: 0 4px 6px rgba(184, 134, 11, 0.3),
+    0 8px 15px rgba(139, 94, 0, 0.2);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .form-item:hover {
   z-index: 10;
   pointer-events: auto;
   transform: translateY(-8px);
-  box-shadow: 0 10px 15px rgba(184, 134, 11, 0.5), 0 20px 30px rgba(139, 94, 0, 0.4);
+  box-shadow: 0 10px 15px rgba(184, 134, 11, 0.5),
+    0 20px 30px rgba(139, 94, 0, 0.4);
 }
 .form-item_title {
   padding: 12px 16px;
@@ -271,7 +285,8 @@ table {
   text-transform: uppercase;
   border: 1px solid black;
 }
-.result-wrapper_row_title, .result-wrapper_row_value {
+.result-wrapper_row_title,
+.result-wrapper_row_value {
   color: black;
   padding: 12px;
   text-align: justify;
@@ -377,7 +392,8 @@ body {
 }
 
 .main-container {
-  background: url("/assets/images/background.png") no-repeat center center fixed;
+  background: url("https://stevencandrink.github.io/confirmSalary/assets/images/background.png")
+    no-repeat center center fixed;
   background-size: cover;
   width: 100%;
   min-height: 100vh;
@@ -418,7 +434,12 @@ body {
   left: -40%;
   width: 80%;
   height: 100%;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
   transform: skewX(-20deg);
   animation: light-sweep 3s infinite;
   pointer-events: none;
@@ -484,7 +505,9 @@ body {
 .btn-primary:hover {
   filter: brightness(1.1);
 }
-.btn-primary:active, .btn-primary:focus-visible, .btn-primary:focus {
+.btn-primary:active,
+.btn-primary:focus-visible,
+.btn-primary:focus {
   filter: brightness(0.9);
   outline: none;
   box-shadow: none;

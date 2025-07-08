@@ -4,6 +4,10 @@
   var sakura = new Sakura("#sakura");
   const contactBox = document.querySelector(".contact-box");
   const formSearch = document.getElementById("formSearch");
+
+  // loading
+  const loadingElement = document.getElementById("loadingResult");
+
   // Button
   const btnIconGroupKeyword = document.getElementById("group-btn_keyword");
   const btnIconGroupPassword = document.getElementById("group-btn_password");
@@ -24,7 +28,7 @@
   staffInfo.staff_id = keywordInput.value;
   staffInfo.real_name = passwordInput.value;
   staffInfo.birth_date = null;
-
+  staffInfo.sum_fee = null;
   keywordInput.addEventListener("input", (e) => {
     staffInfo.staff_id = e.target.value; // Update on every keystroke
   });
@@ -41,7 +45,6 @@
   const modal = document.getElementById("modalResponse");
   const expiredRightItemMessage = document.getElementById("expiredRightItem");
   const resultSearchMessage = document.getElementById("resultDetail");
-
   const boxHeight = contactBox.getBoundingClientRect().height;
 
   const onScrollContactBox = () => {
@@ -159,8 +162,10 @@
     event.preventDefault();
     resultSearchMessage.innerHTML =
       "✅ Thời gian xác nhật lúc 07/07/2025 22h15p";
+    showLoading();
+    getTimeSheetByName();
     resultSearchMessage.classList.add("result-detail");
-    resultSearch.classList.add("show");
+
     onShowConfirmBox();
     window.scrollTo({
       top: document.body.scrollHeight,
@@ -243,14 +248,151 @@
 
   function getTimeSheetByName() {
     google.script.run
-      .withSuccessHandler(function (result) {
-        console.log("Success:", result);
+      .withSuccessHandler(function (rs) {
+        console.log(rs);
+        updateSearchResult(rs);
         // do something with result
+        staffInfo.sum_fee = rs[9];
+        resultSearch.classList.add("show");
+        hideLoading();
+        getPenalties();
       })
-      .withFailureHandler(function (error) {
-        console.error("Error:", error.message);
+      .withFailureHandler(function (err) {
+        console.error("Error:", err.message);
         // show error message to user
       })
       .getTimeSheetByName(staffInfo); //dev
+  }
+
+  function getPenalties() {
+    google.script.run
+      .withSuccessHandler(function (rs) {
+        console.log("Success:", rs);
+        updateTableDetail(rs);
+      })
+      .withFailureHandler(function (err) {
+        console.error("Error:", err.message);
+        // show error message to user
+      })
+      .getPenalties(staffInfo); //dev
+  }
+
+  function confirmSalary() {
+    google.script.run
+      .withSuccessHandler(function (rs) {
+        console.log("Success:", rs);
+        // do something with result
+      })
+      .withFailureHandler(function (err) {
+        console.error("Error:", err.message);
+        // show error message to user
+      })
+      .confirmSalary(staffInfo); //dev
+  }
+
+  function complain() {
+    google.script.run
+      .withSuccessHandler(function (rs) {
+        console.log("Success:", rs);
+        // do something with result
+      })
+      .withFailureHandler(function (err) {
+        console.error("Error:", err.message);
+        // show error message to user
+      })
+      .complain(staffInfo); //dev
+  }
+
+  const dummyStaffData = {
+    name: "John Doe", // staff[1] → Employee name
+    staff_id: "EMP-10025", // staff[39] → Employee ID
+    department: "Engineering", // staff[2] → Department
+    day_work: 22, // staff[36] → Days worked
+    OFF: 2, // staff[35] → Days off
+    OT: 8, // staff[34] → Overtime hours
+    real_name: "Jonathan Doekamp", // staff[41] → Legal name (if different)
+    confirm: "Approved", // staff[38] → Confirmation status (default "")
+    confirm_day: "2024-05-15", // From sheet range AM + note (default "")
+    sum_fee: 2000000,
+  };
+
+  const dummyStaffDataPenalty = [
+    {
+      day: "2023-10-16",
+      name: "Trần Thị B",
+      position: "Trưởng phòng",
+      department: "Kinh doanh",
+      reason: "Không báo cáo đúng hạn",
+      penaltyType: "Phạt tiền",
+      fee: 500000,
+    },
+    {
+      day: "2023-10-16",
+      name: "Trần Thị a",
+      position: "Trưởng phòng",
+      department: "Kinh doanh",
+      reason: "Không báo cáo đúng hạn",
+      penaltyType: "Phạt tiền",
+      fee: 500000,
+    },
+  ];
+
+  function showLoading() {
+    loadingElement.style.display = "block";
+  }
+
+  // Hide the loading spinner
+  function hideLoading() {
+    loadingElement.style.display = "none";
+  }
+
+  function updateSearchResult(data) {
+    if (!data) return;
+
+    const rows = Array.from(
+      resultSearch.querySelectorAll(".result-wrapper_row")
+    );
+
+    const lastRow = rows.pop(); // Removes & returns last element
+    lastRow.querySelector(".value_wrapper_group-text").textContent =
+      new Intl.NumberFormat("de-DE").format(Object.values(data).at(-1));
+
+    rows.forEach((row, index) => {
+      const titleElement = row.querySelector(".result-wrapper_row_title");
+      const valueElement = row.querySelector(".result-wrapper_row_value");
+
+      if (titleElement && valueElement) {
+        valueElement.textContent = `${Object.values(data)[index]}`;
+      }
+    });
+  }
+
+  function updateTableDetail(data) {
+    if (!data) return;
+    const sumTableDetail = document.getElementById("sum-penalty");
+
+    const tableDetailPenaltyBody = document.querySelector(
+      "#tableDetail .table-result tbody"
+    );
+
+    for (var staff of data) {
+      const newRow = document.createElement("tr");
+      // Add cells to the new row with your desired content
+      newRow.innerHTML = `
+      <td>${staff[0]}</td>
+      <td>${staff[1]}</td>
+      <td>${staff[2]}</td>
+      <td>${staff[3]}</td>
+      <td>${staff[4]}</td>
+      <td>Phạt tiền</td>
+      <td>${new Intl.NumberFormat("de-DE").format(staff[5])}</td>
+    `;
+
+      tableDetailPenaltyBody.append(newRow);
+    }
+
+    const sum = new Intl.NumberFormat("de-DE").format(staffInfo.sum_fee);
+
+    sumTableDetail.textContent = `Tổng tiền phạt: ${sum}`;
   }
 }
