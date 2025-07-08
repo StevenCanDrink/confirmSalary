@@ -561,6 +561,9 @@ body {
 #errorMessageSearchForm {
   display: none;
 }
+#errorMessageSearchForm.show {
+  display: block;
+}
 
 .errorMessage {
   background-color: #ffcdd2;
@@ -570,6 +573,10 @@ body {
   font-weight: bold;
   margin-top: 10px;
   font-size: 14px;
+}
+
+#ErrorResult.show {
+  display: block;
 }
 
 .errorResult {
@@ -592,6 +599,10 @@ body {
   font-weight: bold;
   margin-top: 10px;
   font-size: 14px;
+}
+
+#loadingResult.show {
+  display: block;
 }
 
 .group-loading {
@@ -620,6 +631,10 @@ body {
   color: white;
   text-transform: uppercase;
   display: none;
+}
+
+.resultConfirmMessage.show {
+  display: block;
 }
 
 /*# sourceMappingURL=app.css.map */

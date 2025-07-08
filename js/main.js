@@ -46,7 +46,10 @@
   const expiredRightItemMessage = document.getElementById("expiredRightItem");
   const resultSearchMessage = document.getElementById("resultDetail");
   const boxHeight = contactBox.getBoundingClientRect().height;
-
+  const errorMessageSearchForm = document.getElementById(
+    "errorMessageSearchForm"
+  );
+  const errorMessageResult = document.getElementById("ErrorResult");
   const onScrollContactBox = () => {
     const scrollY = window.scrollY;
 
@@ -160,11 +163,16 @@
 
   formSearch.addEventListener("submit", (event) => {
     event.preventDefault();
-    resultSearchMessage.innerHTML =
-      "✅ Thời gian xác nhật lúc 07/07/2025 22h15p";
+    //clean old record
+    wrapperConfirmRightItem.innerHTML = ""; // or hide box
+    resultSearch.classList.remove("show");
+    tableDetailPenalty.classList.remove("show");
+    resultSearchMessage.classList.remove("result-detail");
+    resultSearchMessage.innerHTML = "";
+    // resultSearchMessage.innerHTML =
+    //   "✅ Thời gian xác nhật lúc 07/07/2025 22h15p";
     showLoading();
     getTimeSheetByName();
-    resultSearchMessage.classList.add("result-detail");
 
     onShowConfirmBox();
     window.scrollTo({
@@ -179,7 +187,7 @@
     passwordInput.addEventListener("input", (e) => {
       // Clear the previous timeout (if any)
       clearTimeout(timeoutId);
-
+      confirmSalary();
       // Set a new timeout (e.g., 500ms delay)
       timeoutId = setTimeout(() => {
         staffInfo.birth_date = e.target.value;
@@ -254,12 +262,22 @@
         // do something with result
         staffInfo.sum_fee = rs[9];
         resultSearch.classList.add("show");
+        //if already confirm
+        if (!!rs[7]) {
+          wrapperConfirmRightItem.innerHTML = ""; // or hide box
+          resultSearchMessage.innerHTML = `✅ Đã xác nhận lúc ${rs[8]}`;
+          resultSearchMessage.classList.add("result-detail");
+        } else {
+          resultSearchMessage.innerHTML = "";
+        }
         hideLoading();
         getPenalties();
       })
       .withFailureHandler(function (err) {
         console.error("Error:", err.message);
         // show error message to user
+        errorMessageSearchForm.classList.add("show");
+        errorMessageResult.classList.add("show");
       })
       .getTimeSheetByName(staffInfo); //dev
   }
