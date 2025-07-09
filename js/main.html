@@ -1,4 +1,4 @@
-{
+<script>
   let disabled = false;
 
   var sakura = new Sakura("#sakura");
@@ -18,7 +18,9 @@
   const btnModalConfirm = document.getElementById("modalResponse-btn_submit");
   const btnModalCancel = document.getElementById("modalResponse-btn_cancel");
   const btnOpenModalResponse = document.getElementById("btnOpenModalResponse");
-
+  const btnConfirmSalary = document.querySelectorAll(
+    ".btn-primary.confirm-salary"
+  );
   // Input
   const keywordInput = document.getElementById("keyword");
   const passwordInput = document.getElementById("password");
@@ -50,6 +52,7 @@
     "errorMessageSearchForm"
   );
   const errorMessageResult = document.getElementById("ErrorResult");
+
   const onScrollContactBox = () => {
     const scrollY = window.scrollY;
 
@@ -102,11 +105,6 @@
               <p id="errorMessage"></p>
               <div class="confirm-box_group-btn">
                 <button
-                  type="button"
-                  class="btn-primary">
-                   XÁC NHẬN
-                </button>
-                <button
                 id="desTroyBtn"
                   type="button"
                   class="btn-primary">
@@ -154,7 +152,9 @@
   btnToggleTypeInputPassword.addEventListener("click", () =>
     togglePassword(passwordInput, btnToggleTypeInputPassword)
   );
+
   btnConfirmRightItem.addEventListener("click", () => onShowConfirmBox());
+
   btnShowDetailPenalty.addEventListener("click", () => onShowPenaltyDetail());
 
   btnHideDetailPenalty.addEventListener("click", () =>
@@ -163,43 +163,36 @@
 
   formSearch.addEventListener("submit", (event) => {
     event.preventDefault();
+    const tableDetailPenaltyBody = document.querySelector(
+      "#tableDetail .table-result tbody"
+    );
     //clean old record
+    disabled = false;
     wrapperConfirmRightItem.innerHTML = ""; // or hide box
     resultSearch.classList.remove("show");
     tableDetailPenalty.classList.remove("show");
     resultSearchMessage.classList.remove("result-detail");
+    errorMessageSearchForm.classList.remove("show");
+    errorMessageResult.classList.remove("show");
     resultSearchMessage.innerHTML = "";
+    tableDetailPenaltyBody.innerHTML = "";
     // resultSearchMessage.innerHTML =
     //   "✅ Thời gian xác nhật lúc 07/07/2025 22h15p";
     showLoading();
-    getTimeSheetByName();
+    getConcurrentData();
 
-    onShowConfirmBox();
     window.scrollTo({
       top: document.body.scrollHeight,
       behavior: "smooth", // Optional: adds smooth animation
     });
 
-    //reactive input
-    const passwordInput = document.getElementById("password-right");
-    let timeoutId; // Stores the timeout reference
-
-    passwordInput.addEventListener("input", (e) => {
-      // Clear the previous timeout (if any)
-      clearTimeout(timeoutId);
-      confirmSalary();
-      // Set a new timeout (e.g., 500ms delay)
-      timeoutId = setTimeout(() => {
-        staffInfo.birth_date = e.target.value;
-        console.log(staffInfo);
-      }, 100); // Adjust delay (in milliseconds) as needed
-    });
+    //
   });
 
-  btnModalConfirm.addEventListener(
-    "click",
-    () => (modal.style.display = "none")
-  );
+  btnModalConfirm.addEventListener("click", () => {
+    modal.style.display = "none";
+    complain();
+  });
   btnModalCancel.addEventListener(
     "click",
     () => (modal.style.display = "none")
@@ -257,27 +250,68 @@
   function getTimeSheetByName() {
     google.script.run
       .withSuccessHandler(function (rs) {
+        hideLoading();
         console.log(rs);
+
         updateSearchResult(rs);
         // do something with result
-        staffInfo.sum_fee = rs[9];
         resultSearch.classList.add("show");
+        const sumTableDetail = document.getElementById("sum-penalty");
+        sumTableDetail.textContent = `Tổng tiền phạt: ${new Intl.NumberFormat(
+          "de-DE"
+        ).format(rs[9])}`;
         //if already confirm
         if (!!rs[7]) {
           wrapperConfirmRightItem.innerHTML = ""; // or hide box
-          resultSearchMessage.innerHTML = `✅ Đã xác nhận lúc ${rs[8]}`;
+          resultSearchMessage.innerHTML = String(rs[7]).includes("✅")
+            ? `✅ Đã xác nhận lúc ${rs[8]}`
+            : `✅ Đã phản hồi OA xin vui lòng đợi`;
           resultSearchMessage.classList.add("result-detail");
+          disabled = true;
         } else {
           resultSearchMessage.innerHTML = "";
+          onShowConfirmBox();
+          //reactive input
+          const passwordInput = document.getElementById("password-right");
+          let timeoutId; // Stores the timeout reference
+
+          passwordInput.addEventListener("input", (e) => {
+            // Clear the previous timeout (if any)
+            clearTimeout(timeoutId);
+            // Set a new timeout (e.g., 500ms delay)
+            timeoutId = setTimeout(() => {
+              staffInfo.birth_date = e.target.value;
+              console.log(staffInfo);
+            }, 100); // Adjust delay (in milliseconds) as needed
+          });
+          //add confirm Salary
+          btnConfirmSalary.forEach((button) => {
+            button.addEventListener("click", (event) => {
+              event.preventDefault();
+              if (
+                !staffInfo.real_name ||
+                !staffInfo.birth_date ||
+                !staffInfo.staff_id
+              ) {
+                const errorMessage = document.getElementById("errorMessage");
+                errorMessage.classList.add("errorMessage");
+                errorMessage.innerText = "Vui lòng điền thông tin";
+                return;
+              }
+
+              confirmSalary();
+            });
+          });
         }
-        hideLoading();
-        getPenalties();
+
+        // getPenalties();
       })
       .withFailureHandler(function (err) {
         console.error("Error:", err.message);
         // show error message to user
         errorMessageSearchForm.classList.add("show");
         errorMessageResult.classList.add("show");
+        hideLoading();
       })
       .getTimeSheetByName(staffInfo); //dev
   }
@@ -298,27 +332,41 @@
   function confirmSalary() {
     google.script.run
       .withSuccessHandler(function (rs) {
-        console.log("Success:", rs);
+        wrapperConfirmRightItem.innerHTML = ""; // or hide box
+        resultSearchMessage.innerHTML = `✅ Đã xác nhận thành công`;
+
+        resultSearchMessage.classList.add("result-detail");
+        disabled = true;
         // do something with result
       })
       .withFailureHandler(function (err) {
-        console.error("Error:", err.message);
-        // show error message to user
+        const errorMessage = document.getElementById("errorMessage");
+        errorMessage.classList.add("errorMessage");
+        errorMessage.innerText = "Vui lòng điền thông tin chính xác";
       })
       .confirmSalary(staffInfo); //dev
   }
 
   function complain() {
+    const complainInput = document.getElementById(
+      "modal-response_textarea"
+    ).value;
+
+    console.log(complainInput);
     google.script.run
       .withSuccessHandler(function (rs) {
         console.log("Success:", rs);
-        // do something with result
+        resultSearchMessage.innerHTML = `✅ Đã phản hồi OA xin vui lòng đợi`;
+        resultSearchMessage.classList.add("result-detail");
+        disabled = true;
       })
       .withFailureHandler(function (err) {
         console.error("Error:", err.message);
-        // show error message to user
+        const errorMessage = document.getElementById("errorMessage");
+        errorMessage.classList.add("errorMessage");
+        errorMessage.innerText = "Vui lòng điền thông tin chính xác";
       })
-      .complain(staffInfo); //dev
+      .complain(staffInfo, complainInput); //dev
   }
 
   const dummyStaffData = {
@@ -385,10 +433,16 @@
     });
   }
 
+  async function getConcurrentData() {
+    // Both functions start immediately and run concurrently
+    await Promise.all([
+      getTimeSheetByName(),
+      getPenalties(), // Note: Must accept same parameter
+    ]);
+  }
+
   function updateTableDetail(data) {
     if (!data) return;
-    const sumTableDetail = document.getElementById("sum-penalty");
-
     const tableDetailPenaltyBody = document.querySelector(
       "#tableDetail .table-result tbody"
     );
@@ -408,9 +462,5 @@
 
       tableDetailPenaltyBody.append(newRow);
     }
-
-    const sum = new Intl.NumberFormat("de-DE").format(staffInfo.sum_fee);
-
-    sumTableDetail.textContent = `Tổng tiền phạt: ${sum}`;
   }
-}
+</script>
