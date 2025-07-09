@@ -605,6 +605,10 @@ body {
   display: block;
 }
 
+#loadingRightResult.show {
+  display: block;
+}
+
 .group-loading {
   display: none;
   align-items: end;

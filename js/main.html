@@ -219,9 +219,9 @@
     const thirteenth = new Date(year, month, 13, 0, 0, 0);
 
     if (now < thirteenth) {
-      return new Date(year, month, 12, 0, 0, 0);
+      return new Date(year, month, 13, 0, 0, 0);
     } else {
-      return new Date(year, month + 1, 12, 0, 0, 0);
+      return new Date(year, month + 1, 13, 0, 0, 0);
     }
   };
 
@@ -356,6 +356,7 @@
     google.script.run
       .withSuccessHandler(function (rs) {
         console.log("Success:", rs);
+        wrapperConfirmRightItem.innerHTML = ""; // or hide box
         resultSearchMessage.innerHTML = `✅ Đã phản hồi OA xin vui lòng đợi`;
         resultSearchMessage.classList.add("result-detail");
         disabled = true;
@@ -435,7 +436,7 @@
 
   async function getConcurrentData() {
     // Both functions start immediately and run concurrently
-    await Promise.all([
+    Promise.all([
       getTimeSheetByName(),
       getPenalties(), // Note: Must accept same parameter
     ]);

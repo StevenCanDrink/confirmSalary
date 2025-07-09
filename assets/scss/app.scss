@@ -257,6 +257,12 @@ body {
   }
 }
 
+#loadingRightResult {
+  &.show {
+    display: block;
+  }
+}
+
 .group-loading {
   display: none;
   align-items: end;
