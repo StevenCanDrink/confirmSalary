@@ -216,19 +216,19 @@
   const getEndDate = (now) => {
     const year = now.getFullYear();
     const month = now.getMonth();
-    const thirteenth = new Date(year, month, 13, 0, 0, 0);
+    const thirteenth = new Date(year, month, 8, 0, 0, 0);
 
     if (now < thirteenth) {
-      return new Date(year, month, 13, 0, 0, 0);
+      return new Date(year, month, 8, 0, 0, 0);
     } else {
-      return new Date(year, month + 1, 13, 0, 0, 0);
+      return new Date(year, month + 1, 8, 0, 0, 0);
     }
   };
 
   setInterval(() => {
     const now = new Date();
     const endDate = getEndDate(now);
-    const startDate = new Date(now.getFullYear(), now.getMonth(), 13, 0, 0, 0);
+    const startDate = new Date(now.getFullYear(), now.getMonth(), 8, 0, 0, 0);
 
     if (now >= endDate && now < startDate) {
       countdownElement.innerHTML = `-ngày-giờ-phút-giây`;
@@ -421,6 +421,9 @@
     );
 
     const lastRow = rows.pop(); // Removes & returns last element
+
+    console.log(lastRow);
+
     lastRow.querySelector(".value_wrapper_group-text").textContent =
       new Intl.NumberFormat("de-DE").format(Object.values(data).at(-1));
 
@@ -447,7 +450,7 @@
     const tableDetailPenaltyBody = document.querySelector(
       "#tableDetail .table-result tbody"
     );
-
+    const isWarning = staff[5] === "CẢNH CÁO";
     for (var staff of data) {
       const newRow = document.createElement("tr");
       // Add cells to the new row with your desired content
@@ -457,8 +460,10 @@
       <td>${staff[2]}</td>
       <td>${staff[3]}</td>
       <td>${staff[4]}</td>
-      <td>Phạt tiền</td>
-      <td>${new Intl.NumberFormat("de-DE").format(staff[5])}</td>
+      <td>${isWarning ? staff[5] : "Phạt tiền"} </td>
+      <td> ${
+        isWarning ? staff[5] : new Intl.NumberFormat("de-DE").format(staff[5])
+      }</td>
     `;
 
       tableDetailPenaltyBody.append(newRow);
