@@ -450,10 +450,13 @@
     const tableDetailPenaltyBody = document.querySelector(
       "#tableDetail .table-result tbody"
     );
-    const isWarning = staff[5] === "CẢNH CÁO";
+
     for (var staff of data) {
       const newRow = document.createElement("tr");
       // Add cells to the new row with your desired content
+      const isWarning = typeof staff[5] !== "number";
+
+      console.log(isWarning);
       newRow.innerHTML = `
       <td>${staff[0]}</td>
       <td>${staff[1]}</td>
